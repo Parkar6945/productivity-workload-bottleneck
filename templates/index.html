@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Productivity vs. Workload Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Problem #7 • HR Intelligence</span>
+                    <span class="text-xs text-slate-400">Burnout & Workload Efficiency Diagnostics</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white mt-1">Employee Productivity vs. Workload Engine</h1>
+                <p class="text-sm text-slate-400">Reveals diminishing returns of overtime, task queues, and defect rework bottlenecks.</p>
+            </div>
+            <button onclick="recalculate()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition shadow-lg shadow-amber-600/20 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                Re-simulate Workloads
+            </button>
+        </header>
+
+        <!-- KPI Metrics Ribbon -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Assessed Workforce</div>
+                <div id="metric-staff" class="text-2xl font-bold text-white mt-1">--</div>
+                <div class="text-xs text-slate-500 mt-0.5">Active team members</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Avg Weekly Hours</div>
+                <div id="metric-avg-hours" class="text-2xl font-bold text-amber-400 mt-1">--</div>
+                <div id="metric-overwork-ratio" class="text-xs text-amber-500 mt-0.5">-- % over 48h limit</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Avg Productivity Index</div>
+                <div id="metric-prod" class="text-2xl font-bold text-emerald-400 mt-1">--</div>
+                <div class="text-xs text-emerald-500 mt-0.5">Effective task output</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Burnout High-Risk</div>
+                <div id="metric-burnout" class="text-2xl font-bold text-rose-400 mt-1">--</div>
+                <div class="text-xs text-rose-500 mt-0.5">Severe exhaustion zone</div>
+            </div>
+        </div>
+
+        <!-- Diminishing Returns Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-white">The Diminishing Returns Curve</h3>
+                    <span class="text-xs text-slate-500">Output vs. Workload Brackets</span>
+                </div>
+                <div class="h-80">
+                    <canvas id="diminishingReturnsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-white">Quality Penalty (Defect Rework Rate)</h3>
+                    <span class="text-xs text-slate-500">Errors vs Overtime Fatigue</span>
+                </div>
+                <div class="h-80">
+                    <canvas id="reworkChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teams Breakdown Table -->
+        <div class="mt-8 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                    <h3 class="font-semibold text-white">Departmental Workload & Bottleneck Diagnostics</h3>
+                    <p class="text-xs text-slate-400">Team health indicators, stress levels, and operational interventions</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-950/50 text-xs uppercase text-slate-400 border-b border-slate-800">
+                        <tr>
+                            <th class="p-3.5">Team</th>
+                            <th class="p-3.5 text-right">Headcount</th>
+                            <th class="p-3.5 text-right">Avg Weekly Hours</th>
+                            <th class="p-3.5 text-right">Productivity Score</th>
+                            <th class="p-3.5 text-right">Burnout Index</th>
+                            <th class="p-3.5 text-right">Rework / Defects</th>
+                            <th class="p-3.5">Status</th>
+                            <th class="p-3.5">Manager Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teamsTableBody" class="divide-y divide-slate-800">
+                        <!-- Injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let curveChart = null;
+        let reworkChart = null;
+
+        async function fetchWorkload() {
+            try {
+                const res = await fetch('/api/workload');
+                const data = await res.json();
+                renderDashboard(data);
+            } catch (err) {
+                console.error("Failed to load workload:", err);
+            }
+        }
+
+        async function recalculate() {
+            await fetch('/api/recalculate', { method: 'POST' });
+            await fetchWorkload();
+        }
+
+        function renderDashboard(data) {
+            const m = data.metrics;
+            document.getElementById('metric-staff').innerText = m.total_staff;
+            document.getElementById('metric-avg-hours').innerText = `${m.avg_weekly_hours} hrs`;
+            document.getElementById('metric-overwork-ratio').innerText = `${m.overworked_ratio_pct}% over 48h limit`;
+            document.getElementById('metric-prod').innerText = `${m.avg_productivity_score} / 100`;
+            document.getElementById('metric-burnout').innerText = `${m.burnout_risk_headcount} staff`;
+
+            // Render Teams Table
+            const tbody = document.getElementById('teamsTableBody');
+            tbody.innerHTML = '';
+            data.teams.forEach(t => {
+                const statusBadge = t.status.includes('BURNOUT') 
+                    ? '<span class="px-2 py-0.5 rounded text-xs bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">BURNOUT RISK</span>'
+                    : t.status.includes('QUALITY') 
+                    ? '<span class="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20">QUALITY DEFICIT</span>'
+                    : '<span class="px-2 py-0.5 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">HEALTHY</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-3.5 font-medium text-white">${t.team}</td>
+                        <td class="p-3.5 text-right font-mono text-slate-300">${t.headcount}</td>
+                        <td class="p-3.5 text-right font-mono font-bold ${t.avg_weekly_hours > 48 ? 'text-rose-400' : 'text-slate-200'}">${t.avg_weekly_hours}h</td>
+                        <td class="p-3.5 text-right font-mono text-emerald-400">${t.avg_productivity_score}</td>
+                        <td class="p-3.5 text-right font-mono ${t.avg_burnout_index > 50 ? 'text-rose-400 font-bold' : 'text-slate-300'}">${t.avg_burnout_index}</td>
+                        <td class="p-3.5 text-right font-mono text-amber-400">${t.avg_rework_pct}%</td>
+                        <td class="p-3.5">${statusBadge}</td>
+                        <td class="p-3.5 text-xs text-slate-300">${t.intervention}</td>
+                    </tr>
+                `;
+            });
+
+            // Render Charts
+            renderCharts(data.diminishing_returns_curve);
+        }
+
+        function renderCharts(curve) {
+            const ctx1 = document.getElementById('diminishingReturnsChart').getContext('2d');
+            if (curveChart) curveChart.destroy();
+            curveChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: curve.map(c => c.workload_bracket),
+                    datasets: [{
+                        label: 'Effective Productivity Score',
+                        data: curve.map(c => c.avg_productivity),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#10b981'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' }, min: 30, max: 100 }
+                    },
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } }
+                }
+            });
+
+            const ctx2 = document.getElementById('reworkChart').getContext('2d');
+            if (reworkChart) reworkChart.destroy();
+            reworkChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: curve.map(c => c.workload_bracket),
+                    datasets: [{
+                        label: 'Error & Rework Rate (%)',
+                        data: curve.map(c => c.avg_rework_pct),
+                        backgroundColor: '#f43f5e',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' }, title: { display: true, text: 'Rework %', color: '#94a3b8' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        fetchWorkload();
+    </script>
+</body>
+</html>
